@@ -1,0 +1,3 @@
+*.mycluster.*
+javascript/node_modules
+go/go.sum
