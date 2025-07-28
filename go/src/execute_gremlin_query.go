@@ -11,7 +11,7 @@ import (
 
 func main() {
     region := "my-region"
-	clusterEndpoint := "my-cluster-name.cluster-abcdefgh1234.my-region.neptune.amazonaws.com"
+	clusterEndpoint := "my-cluster-name.cluster-abcdefgh1234." + region + ".neptune.amazonaws.com"
 	neptunePort := "neptune-port"
     sdkConfig, _ := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
     svc := neptunedata.NewFromConfig(sdkConfig, func(o *neptunedata.Options) {
@@ -24,15 +24,15 @@ func main() {
     result, err1 := svc.ExecuteGremlinQuery(context.TODO(), &input)
 	if (err1 != nil) {
 		fmt.Printf("Error retrieving result, %v", err1.Error())
-		os.Exit(2)
+		os.Exit(1)
 	}
     var kv map[string]interface{}
 	err2 := result.Result.UnmarshalSmithyDocument(&kv)
 	if err2 != nil {
 		fmt.Printf("Error retrieving result, %v", err2.Error())
-		os.Exit(2)
+		os.Exit(1)
 	}
     enc, _ := json.Marshal(kv)
     fmt.Println(string(enc))
-    os.Exit(1)
+    os.Exit(0)
 }
