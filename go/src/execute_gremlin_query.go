@@ -7,16 +7,22 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/neptunedata"
 	"os"
 	"encoding/json"
+	"net/http"
 )
 
 func main() {
     region := "my-region"
 	clusterEndpoint := "my-cluster-name.cluster-abcdefgh1234." + region + ".neptune.amazonaws.com"
 	neptunePort := "neptune-port"
-    sdkConfig, _ := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
+	// Here we set an unlimited client timeout, but 
+	// you can also use the value of your instance timeout from the Neptune configuration
+	client := &http.Client{
+		Timeout: 0,
+	}
+    sdkConfig, _ := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region), config.WithHTTPClient(client))
     svc := neptunedata.NewFromConfig(sdkConfig, func(o *neptunedata.Options) {
         o.BaseEndpoint = aws.String("https://" + clusterEndpoint + ":" + neptunePort)
-		o.Retryer = aws.NopRetryer{}
+		o.Retryer = aws.NopRetryer{}    // Do not retry calls if they fail
     })
     query := "g.addV('person').property('name','justin').property(id,'justin-1')"
     serializer := "application/vnd.gremlin-v1.0+json;types=false"
